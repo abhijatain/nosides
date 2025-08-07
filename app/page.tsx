@@ -1,103 +1,154 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { TooltipProvider } from '@/components/ui/tooltip';
+import SiteHeader from '@/components/siteHeader';
+import ChannelLogosBar from '@/components/home/channelLogosBar';
+import Carousel from '@/components/home/clusterCarousel';
+import CategoriesColumn from '@/components/home/categoriesColumn';
+import EntitiesColumn from '@/components/home/entitiesColumn';
+import LatestArticles from '@/components/entity/latestArticles';
+import BottomNav from '@/components/bottomNav';
+import { CarouselItem } from '@/components/home/clusterCarousel';
+import { FiFileText } from 'react-icons/fi';
+import NewsFilterBeam from '@/components/home/newsFilterBeam';
+import Glow from '@/components/glow';
+import { Button } from '@/components/ui/button';
+import { ChevronRight } from 'lucide-react';
+
+// Mock data
+const channelData = [
+  { name: 'CNN', logo: 'https://via.placeholder.com/50?text=CNN' },
+  { name: 'BBC', logo: 'https://via.placeholder.com/50?text=BBC' },
+  { name: 'Fox News', logo: 'https://via.placeholder.com/50?text=Fox' },
+  { name: 'Al Jazeera', logo: 'https://via.placeholder.com/50?text=AJ' },
+  { name: 'The Sun', logo: 'https://via.placeholder.com/50?text=Sun' },
+];
+
+const clustersData: CarouselItem[] = [
+  {
+    id: 1,
+    title: "Tesla's Robotaxi Delay Sparks Debate",
+    description: "Tesla's delayed Robotaxi launch has raised concerns about autonomous driving timelines, with mixed sentiment across news outlets. Published: August 5, 2025",
+    icon: <FiFileText className="h-[16px] w-[16px] text-white" />,
+  },
+  {
+    id: 2,
+    title: 'Global Tech Regulation Tightens',
+    description: 'New regulations targeting tech giants like Apple and Google are reshaping the industry, with debates on privacy and innovation. Published: August 3, 2025',
+    icon: <FiFileText className="h-[16px] w-[16px] text-white" />,
+  },
+  {
+    id: 3,
+    title: 'Boeing Faces Safety Scrutiny',
+    description: "Boeing's ongoing safety issues with aircraft have drawn criticism, impacting its public perception. Published: July 30, 2025",
+    icon: <FiFileText className="h-[16px] w-[16px] text-white" />,
+  },
+];
+
+const categoriesData = ['Technology', 'Politics', 'Business', 'Environment', 'Health'];
+
+const entitiesData = ['Tesla', 'Elon Musk', 'Apple', 'Biden Administration', 'Boeing'];
+
+const articlesData = [
+  {
+    title: "Apple's AI Integration Drives Market Confidence and Stock Rally",
+    channels: [
+      { name: "CNN Business", logo: "https://via.placeholder.com/40?text=CB" },
+    ],
+    date: "2025-08-06",
+    url: "https://www.cnn.com/2025/08/06/apple-ai-integration",
+    summary: "Apple's latest AI announcements have boosted investor confidence, with shares reaching new highs amid strong quarterly earnings and positive market reception.",
+    entities: [
+      { entity: "Apple", sentiment: 0.75, displaySentiment: "75%" },
+      { entity: "Investors", sentiment: 0.68, displaySentiment: "68%" },
+  ]
+  },
+  {
+    title: "Tesla Factory Expansion Plans Face Environmental Scrutiny",
+    channels: [
+      { name: "CNN", logo: "https://via.placeholder.com/40?text=CNN" },
+      { name: "CNN Climate", logo: "https://via.placeholder.com/40?text=CC" },
+    ],
+    date: "2025-08-05",
+    url: "https://www.cnn.com/2025/08/05/tesla-factory-environment",
+    summary: "Environmental groups raise concerns over Tesla's proposed factory expansion in Texas as the company seeks to double production capacity.",
+    entities: [
+      { entity: "Tesla", sentiment: -0.35, displaySentiment: "35%" },
+      { entity: "Elon Musk", sentiment: -0.28, displaySentiment: "28%" },
+   ]
+  },
+  {
+    title: "Boeing Safety Oversight Under Comprehensive Federal Review",
+    channels: [
+      { name: "CNN", logo: "https://via.placeholder.com/40?text=CNN" },
+    ],
+    date: "2025-08-04",
+    url: "https://www.cnn.com/2025/08/04/boeing-safety-review",
+    summary: "Federal aviation regulators announce comprehensive review of Boeing's safety protocols following recent manufacturing quality concerns and ongoing issues.",
+    entities: [
+      { entity: "Boeing", sentiment: -0.78, displaySentiment: "78%" },
+      { entity: "FAA", sentiment: 0.45, displaySentiment: "45%" },
+    
+    ]
+  },
+  {
+    title: "TikTok Ban Appeals Process Enters Final Stage at Supreme Court",
+    channels: [
+      { name: "CNN Politics", logo: "https://via.placeholder.com/40?text=CP" },
+      { name: "CNN Business", logo: "https://via.placeholder.com/40?text=CB" },
+      { name: "CNN Tech", logo: "https://via.placeholder.com/40?text=CT" },
+    ],
+    date: "2025-08-03",
+    url: "https://www.cnn.com/2025/08/03/tiktok-ban-appeals",
+    summary: "The Supreme Court prepares to hear final arguments in TikTok's challenge to federal legislation that could ban the app in the United States.",
+    entities: [
+      { entity: "TikTok", sentiment: -0.62, displaySentiment: "62%" },
+      { entity: "Supreme Court", sentiment: 0.18, displaySentiment: "18%" },
+  ]
+  },
+];
+
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <TooltipProvider>
+      <div className="flex flex-col h-screen bg-slate-50 ">
+        <SiteHeader />
+        <div className="mt-18">
+        
+          
+       
+        
+          <NewsFilterBeam />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        
+        <div className="flex-1  pb-16 p-2">
+          
+          <div className="">
+            <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-semibold text-black">Trending Topics</h2>
+        <Button variant="ghost" size="sm" className="text-xs text-black">
+          View All <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+      </div>
+            <Carousel
+              items={clustersData}
+              baseWidth={350}
+              autoplay={true}
+              autoplayDelay={6000}
+              pauseOnHover={true}
+              loop={true}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <ChannelLogosBar channels={channelData} />
+              
+              <EntitiesColumn entities={entitiesData} />
+              
+            </div>
+            <LatestArticles articles={articlesData} />
+          </div>
+        </div>
+      
+      </div>
+    </TooltipProvider>
   );
 }
