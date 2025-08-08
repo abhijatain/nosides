@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import EntityGraph from '@/components/entity/entityGraph2';
 import SiteHeader from '@/components/siteHeader';
@@ -22,6 +22,115 @@ interface SentimentData {
   sentiment: number;
   displaySentiment: string;
 }
+
+// Autocomplete Input Component
+interface AutocompleteInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  suggestions: string[];
+  className?: string;
+}
+
+const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
+  value,
+  onChange,
+  placeholder,
+  suggestions,
+  className
+}) => {
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (value.length > 0) {
+      const filtered = suggestions.filter(suggestion =>
+        suggestion.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setFilteredSuggestions([]);
+      setShowSuggestions(false);
+    }
+    setActiveSuggestion(-1);
+  }, [value, suggestions]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value);
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    onChange(suggestion);
+    setShowSuggestions(false);
+    setActiveSuggestion(-1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveSuggestion(prev => 
+        prev < filteredSuggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveSuggestion(prev => prev > 0 ? prev - 1 : -1);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeSuggestion >= 0 && activeSuggestion < filteredSuggestions.length) {
+        handleSuggestionClick(filteredSuggestions[activeSuggestion]);
+      }
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+      setActiveSuggestion(-1);
+    }
+  };
+
+  const handleBlur = () => {
+    // Delay hiding suggestions to allow for click events
+    setTimeout(() => {
+      setShowSuggestions(false);
+      setActiveSuggestion(-1);
+    }, 150);
+  };
+
+  return (
+    <div className="relative">
+      <Input
+        ref={inputRef}
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        onFocus={() => setShowSuggestions(value.length > 0 && filteredSuggestions.length > 0)}
+        onBlur={handleBlur}
+        className={className}
+      />
+      {showSuggestions && (
+        <div
+          ref={suggestionsRef}
+          className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
+        >
+          {filteredSuggestions.map((suggestion, index) => (
+            <div
+              key={suggestion}
+              className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                index === activeSuggestion ? 'bg-blue-100' : ''
+              }`}
+              onClick={() => handleSuggestionClick(suggestion)}
+            >
+              {suggestion}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Generate dummy data with sentiment
 const generateDummyData = () => {
@@ -104,8 +213,8 @@ export default function Home() {
   const { mainEntity, relationships, sentimentData, selectedEntities } = data;
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [entity1, setEntity1] = useState(mainEntity);
-  const [entity2, setEntity2] = useState("Tesla"); // Default to Tesla for testing
+  const [entity1, setEntity1] = useState("");
+  const [entity2, setEntity2] = useState(""); // Default to Tesla for testing
   const [filteredRelationships, setFilteredRelationships] = useState(relationships);
   const [path, setPath] = useState<Relationship[] | null>(null);
   const [connectionSentiment, setConnectionSentiment] = useState<string>('');
@@ -115,13 +224,23 @@ export default function Home() {
     setFilteredRelationships(relationships);
   }, [relationships]);
 
-  // Find shortest path between two entities with sentiment analysis
+  // Find shortest path between two entities with sentiment analysis (case-insensitive)
   const findConnection = () => {
-    if (!entity1 || !entity2 || entity1 === entity2 || !relationships.length) {
+    if (!entity1 || !entity2 || entity1.toLowerCase() === entity2.toLowerCase() || !relationships.length) {
       setPath(null);
       setConnectionSentiment('');
       return;
     }
+
+    // Find exact matches (case-insensitive)
+    const findExactEntity = (input: string) => {
+      return selectedEntities.find(entity => 
+        entity.toLowerCase() === input.toLowerCase()
+      ) || input;
+    };
+
+    const exactEntity1 = findExactEntity(entity1);
+    const exactEntity2 = findExactEntity(entity2);
 
     const visited = new Set<string>();
     const queue: { entity: string; path: Relationship[] }[] = [];
@@ -140,8 +259,8 @@ export default function Home() {
       });
     });
 
-    queue.push({ entity: entity1, path: [] });
-    visited.add(entity1);
+    queue.push({ entity: exactEntity1, path: [] });
+    visited.add(exactEntity1);
 
     while (queue.length > 0) {
       const { entity, path: currentPath } = queue.shift()!;
@@ -149,7 +268,7 @@ export default function Home() {
 
       for (const rel of rels) {
         const nextEntity = rel.to;
-        if (nextEntity === entity2) {
+        if (nextEntity === exactEntity2) {
           const foundPath = [...currentPath, rel];
           setPath(foundPath);
           
@@ -213,22 +332,22 @@ export default function Home() {
           <CardTitle>Find Connections</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex space-x-4 mb-4">
-            <Input
-              type="text"
-              placeholder="Entity 1"
+          <div className="flex flex-row sm:flex-row sm:space-x-2 mb-4 space-x-2 sm:space-y-0">
+            <AutocompleteInput
               value={entity1}
-              onChange={(e) => setEntity1(e.target.value)}
-              className="w-1/2"
+              onChange={setEntity1}
+              placeholder="Entity 1"
+              suggestions={selectedEntities}
+              className="w-full sm:w-5/12 text-sm"
             />
-            <Input
-              type="text"
-              placeholder="Entity 2"
+            <AutocompleteInput
               value={entity2}
-              onChange={(e) => setEntity2(e.target.value)}
-              className="w-1/2"
+              onChange={setEntity2}
+              placeholder="Entity 2"
+              suggestions={selectedEntities}
+              className="w-full sm:w-5/12 text-sm"
             />
-            <Button onClick={findConnection} className="w-1/4">Find</Button>
+            <Button onClick={findConnection} className=" sm:w-2/12">Find</Button>
           </div>
           
           {connectionSentiment && (
