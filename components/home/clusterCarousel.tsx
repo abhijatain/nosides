@@ -19,7 +19,7 @@ export interface CarouselProps {
   loop?: boolean;
 }
 
-const DRAG_BUFFER = 0;
+const DRAG_BUFFER = 50; // Increased for better drag detection
 const VELOCITY_THRESHOLD = 500;
 const GAP = 16;
 const SPRING_OPTIONS = { type: "spring", stiffness: 300, damping: 30 };
@@ -34,8 +34,9 @@ export default function Carousel({
 }: CarouselProps): JSX.Element {
   const containerPadding = 16;
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
-  const responsiveWidth = windowWidth <= 640 ? windowWidth - 32 : baseWidth;
-  const itemWidth = responsiveWidth - containerPadding * 2;
+  // Cap the responsive width to prevent overflow and ensure one card is visible
+  const responsiveWidth = Math.min(windowWidth - containerPadding * 2, baseWidth);
+  const itemWidth = responsiveWidth;
   const trackItemOffset = itemWidth + GAP;
   const carouselItems = loop ? [...items, items[0]] : items;
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -137,6 +138,7 @@ export default function Carousel({
         width: responsiveWidth,
         maxWidth: '350px',
         margin: '0 auto',
+        overflow: 'hidden', // Clip offscreen cards
       }}
     >
       <motion.div
@@ -144,10 +146,7 @@ export default function Carousel({
         drag="x"
         {...dragProps}
         style={{
-          width: itemWidth,
           gap: `${GAP}px`,
-          perspective: 1000,
-          perspectiveOrigin: `${currentIndex * trackItemOffset + itemWidth / 2}px 50%`,
           x,
         }}
         onDragEnd={handleDragEnd}
@@ -156,20 +155,15 @@ export default function Carousel({
         onAnimationComplete={handleAnimationComplete}
       >
         {carouselItems.map((item, index) => {
-          const range = [
-            -(index + 1) * trackItemOffset,
-            -index * trackItemOffset,
-            -(index - 1) * trackItemOffset,
-          ];
-          const outputRange = [90, 0, -90];
-          const rotateY = useTransform(x, range, outputRange, { clamp: false });
+          // Opacity to hide offscreen cards
+          const isActive = index === currentIndex;
           return (
             <motion.div
               key={index}
               className={`relative shrink-0 flex flex-col items-start justify-between bg-black text-white rounded-[12px] overflow-hidden cursor-grab active:cursor-grabbing`}
               style={{
                 width: itemWidth,
-                rotateY: rotateY,
+                opacity: isActive ? 1 : 0.3, // Dim non-active cards
               }}
               transition={effectiveTransition}
             >
