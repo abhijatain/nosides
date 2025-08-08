@@ -1,145 +1,314 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { TooltipProvider } from "@/components/ui/tooltip";
-import EntityHeader from '@/components/entity/entityHeader';
-import SentimentChart from '@/components/entity/sentimentChart';
-import WikiInfo from '@/components/entity/wikiInfo';
-import EntityGraph from '@/components/entity/entityGraph';
-import LatestArticles from '@/components/entity/latestArticles';
-import BottomNav from '@/components/bottomNav';
+import { useEffect, useState } from 'react';
+import { Input } from "@/components/ui/input";
+import EntityGraph from '@/components/entity/entityGraph2';
 import SiteHeader from '@/components/siteHeader';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
 
-// Mock data for demonstration
-const mockEntityData = {
-  name: "Tesla, Inc.",
-  type: "organization",
-  articleCount: 3421, // Plausible estimate based on Tesla's media coverage
-  readCount: 1250000, // Plausible estimate for article reads
-  sentimentData: [
-    { date: "2025-01-01", youtube: 0.4, news: 0.3 }, // Positive due to product launches
-    { date: "2025-02-01", youtube: 0.2, news: 0.1 }, // Slight dip
-    { date: "2025-03-01", youtube: -0.1, news: -0.2 }, // Negative sentiment from controversies
-    { date: "2025-04-01", youtube: 0.5, news: 0.4 }, // Recovery from new announcements
-    { date: "2025-05-01", youtube: 0.3, news: 0.2 }, // Stable positive sentiment
-    { date: "2025-06-01", youtube: 0.1, news: -0.1 }, // Mixed sentiment
-    { date: "2025-07-01", youtube: -0.2, news: -0.3 }, // Negative from X post sentiment
-  ],
-  wikiInfo: {
-    summary: "Tesla, Inc. is an American electric vehicle and clean energy company based in Austin, Texas. Tesla designs and manufactures electric cars, battery energy storage, and solar products. Founded in 2003 by Martin Eberhard and Marc Tarpenning, it became the first American automaker to go public since Ford in 1956.",
-    url: "https://en.wikipedia.org/wiki/Tesla,_Inc."
-  },
-   relationships: [
-    { target: "Elon Musk", weight: 0.9, type: "CEO" }, // Strong relationship
-    { target: "General Motors", weight: 0.5, type: "competitor" }, // Moderate competition
-    { target: "Panasonic", weight: 0.7, type: "partner" }, // Strong partnership for batteries
-    { target: "BYD", weight: 0.4, type: "competitor" }, // Growing competition
-    { target: "NVIDIA", weight: 0.75, type: "partner" }, // Strong partnership for AI chips
-    { target: "Ford", weight: 0.45, type: "competitor" } // Moderate competition in EV market
-  ],
-  articles: [
-    {
-      title: "Tesla’s Robotaxi Delay Sparks Investor Concerns",
-      source: "Reuters",
-      date: "2025-07-15",
-      url: "https://www.reuters.com/technology/tesla-robotaxi-delay-2025-07-15/",
-      snippet: "Tesla’s delay in unveiling its Robotaxi has raised questions about its autonomous driving timeline..."
-    },
-    {
-      title: "Tesla’s Q2 Earnings Beat Expectations",
-      source: "Bloomberg",
-      date: "2025-07-22",
-      url: "https://www.bloomberg.com/news/tesla-q2-2025/",
-      snippet: "Tesla reported stronger-than-expected earnings, driven by energy storage growth..."
-    },
-    {
-      title: "Tesla Faces Criticism Over Political Stance",
-      source: "The Guardian",
-      date: "2025-08-01",
-      url: "https://www.theguardian.com/technology/tesla-political-2025-08-01/",
-      snippet: "Recent political comments by Tesla’s CEO have stirred debate among consumers..." //
+// Define the Relationship interface with sentiment
+interface Relationship {
+  from: string;
+  to: string;
+  weight: number;
+  type: string;
+  sentiment?: number; // Add sentiment (-1 to 1)
+}
+
+// Define sentiment data interface
+interface SentimentData {
+  entity: string;
+  sentiment: number;
+  displaySentiment: string;
+}
+
+// Generate dummy data with sentiment
+const generateDummyData = () => {
+  const entities = [
+    "Elon Musk", "Tesla", "General Motors", "Panasonic", "BYD", "NVIDIA", "Ford",
+    "Apple", "Google", "Amazon", "Microsoft", "Meta", "SpaceX", "NASA", "Boeing",
+    "Volkswagen", "Toyota", "Honda", "Samsung", "Intel", "AMD", "Qualcomm",
+    "Pfizer", "Moderna", "Johnson & Johnson", "AstraZeneca", "Walmart", "Target",
+    "Alibaba", "Tencent", "Baidu", "JPMorgan Chase", "Goldman Sachs", "Morgan Stanley",
+    "Bank of America", "Wells Fargo", "Chevron", "ExxonMobil", "Shell", "BP",
+    "Saudi Aramco", "United Airlines", "Delta Air Lines", "American Airlines",
+    "FedEx", "UPS", "Disney", "Netflix", "Warner Bros", "Universal Pictures",
+    "Sony", "LG", "IBM", "Oracle", "SAP", "Salesforce", "Adobe", "Zoom",
+    "TikTok", "ByteDance", "Twitter", "Snapchat", "Reddit", "BBC", "CNN",
+    "Fox News", "New York Times", "Washington Post", "Wall Street Journal",
+    "Bloomberg", "Reuters", "European Union", "United Nations", "World Bank",
+    "IMF", "WHO", "CDC", "FBI", "CIA", "NSA", "Pentagon", "White House",
+    "Kremlin", "Xi Jinping", "Vladimir Putin", "Joe Biden", "Kamala Harris",
+    "Boris Johnson", "Emmanuel Macron", "Angela Merkel", "Ursula von der Leyen",
+    "Christine Lagarde", "Jerome Powell", "Janet Yellen", "BlackRock", "Vanguard",
+    "Starbucks", "McDonald's", "Coca-Cola", "PepsiCo", "Nestlé", "Unilever"
+  ];
+
+  const selectedEntities = entities.slice(0, 100);
+  const relationships: Relationship[] = [];
+  const relationshipTypes = ["partner", "competitor", "investor", "supplier"];
+  const mainEntity = selectedEntities[0]; // e.g., "Elon Musk"
+  const edgeSet = new Set<string>();
+
+  // Generate relationships with sentiment
+  selectedEntities.forEach((entity) => {
+    const numRelationships = Math.floor(Math.random() * 3) + 1; // 1-3 relationships
+    const otherEntities = selectedEntities.filter((e) => e !== entity);
+    const shuffledOthers = otherEntities.sort(() => Math.random() - 0.5);
+
+    for (let j = 0; j < Math.min(numRelationships, otherEntities.length); j++) {
+      const to = shuffledOthers[j];
+      const edgeKey = `${entity}-${to}`;
+      const reverseEdgeKey = `${to}-${entity}`;
+      if (!edgeSet.has(edgeKey) && !edgeSet.has(reverseEdgeKey)) {
+        const weight = Math.random() * 0.9 + 0.1;
+        const type = relationshipTypes[Math.floor(Math.random() * relationshipTypes.length)];
+        // Generate sentiment between -1 and 1, with bias based on relationship type
+        let sentiment = Math.random() * 2 - 1;
+        if (type === "partner") sentiment = Math.abs(sentiment); // Partners tend to be positive
+        if (type === "competitor") sentiment = -Math.abs(sentiment); // Competitors tend to be negative
+        
+        relationships.push({ from: entity, to, weight, type, sentiment });
+        edgeSet.add(edgeKey);
+      }
     }
-  ]
+    // Ensure Elon Musk and Tesla have a positive relationship
+    if (entity === "Elon Musk" && !edgeSet.has("Elon Musk-Tesla")) {
+      relationships.push({ 
+        from: "Elon Musk", 
+        to: "Tesla", 
+        weight: 0.9, 
+        type: "CEO", 
+        sentiment: 0.8 // Very positive
+      });
+      edgeSet.add("Elon Musk-Tesla");
+    }
+  });
+
+  // Generate dummy sentiment data for top 20
+  const sentimentData: SentimentData[] = selectedEntities
+    .slice(0, 20)
+    .map((entity) => ({
+      entity,
+      sentiment: (Math.random() * 2 - 1) * 100, // Random sentiment between -100 and 100
+      displaySentiment: `${(Math.random() * 2 - 1).toFixed(2)}`, // Random display between -1 and 1
+    }));
+
+  return { mainEntity, relationships, sentimentData, selectedEntities };
 };
 
-// Mock latest articles for CNN aligned with new component structure
-const cnnArticles = [
-  {
-    title: "Apple's AI Integration Drives Market Confidence and Stock Rally",
-    channels: [
-      { name: "CNN Business", logo: "https://via.placeholder.com/40?text=CB" },
-    ],
-    date: "2025-08-06",
-    url: "https://www.cnn.com/2025/08/06/apple-ai-integration",
-    summary: "Apple's latest AI announcements have boosted investor confidence, with shares reaching new highs amid strong quarterly earnings and positive market reception.",
-    entities: [
-      { entity: "Apple", sentiment: 0.75, displaySentiment: "75%" },
-      { entity: "Investors", sentiment: 0.68, displaySentiment: "68%" },
-  ]
-  },
-  {
-    title: "Tesla Factory Expansion Plans Face Environmental Scrutiny",
-    channels: [
-      { name: "CNN", logo: "https://via.placeholder.com/40?text=CNN" },
-      { name: "CNN Climate", logo: "https://via.placeholder.com/40?text=CC" },
-    ],
-    date: "2025-08-05",
-    url: "https://www.cnn.com/2025/08/05/tesla-factory-environment",
-    summary: "Environmental groups raise concerns over Tesla's proposed factory expansion in Texas as the company seeks to double production capacity.",
-    entities: [
-      { entity: "Tesla", sentiment: -0.35, displaySentiment: "35%" },
-      { entity: "Elon Musk", sentiment: -0.28, displaySentiment: "28%" },
-   ]
-  },
-  {
-    title: "Boeing Safety Oversight Under Comprehensive Federal Review",
-    channels: [
-      { name: "CNN", logo: "https://via.placeholder.com/40?text=CNN" },
-    ],
-    date: "2025-08-04",
-    url: "https://www.cnn.com/2025/08/04/boeing-safety-review",
-    summary: "Federal aviation regulators announce comprehensive review of Boeing's safety protocols following recent manufacturing quality concerns and ongoing issues.",
-    entities: [
-      { entity: "Boeing", sentiment: -0.78, displaySentiment: "78%" },
-      { entity: "FAA", sentiment: 0.45, displaySentiment: "45%" },
-    
-    ]
-  },
-  {
-    title: "TikTok Ban Appeals Process Enters Final Stage at Supreme Court",
-    channels: [
-      { name: "CNN Politics", logo: "https://via.placeholder.com/40?text=CP" },
-      { name: "CNN Business", logo: "https://via.placeholder.com/40?text=CB" },
-      { name: "CNN Tech", logo: "https://via.placeholder.com/40?text=CT" },
-    ],
-    date: "2025-08-03",
-    url: "https://www.cnn.com/2025/08/03/tiktok-ban-appeals",
-    summary: "The Supreme Court prepares to hear final arguments in TikTok's challenge to federal legislation that could ban the app in the United States.",
-    entities: [
-      { entity: "TikTok", sentiment: -0.62, displaySentiment: "62%" },
-      { entity: "Supreme Court", sentiment: 0.18, displaySentiment: "18%" },
-  ]
-  },
-];
+export default function Home() {
+  // Generate data once and store in state to prevent fluctuations
+  const [data] = useState(() => generateDummyData());
+  const { mainEntity, relationships, sentimentData, selectedEntities } = data;
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [entity1, setEntity1] = useState(mainEntity);
+  const [entity2, setEntity2] = useState("Tesla"); // Default to Tesla for testing
+  const [filteredRelationships, setFilteredRelationships] = useState(relationships);
+  const [path, setPath] = useState<Relationship[] | null>(null);
+  const [connectionSentiment, setConnectionSentiment] = useState<string>('');
 
-export default function EntityPage() {
-  return (
-    <TooltipProvider>
-      <SiteHeader />
-      <div className="mt-16 min-h-screen bg-gradient-to-br from-[#27548A] via-[#2d5a94] to-[#1e4170] text-white">
-        <EntityHeader name={mockEntityData.name} type={mockEntityData.type} />
-        <WikiInfo info={mockEntityData.wikiInfo} />
-        <div className="bg-white rounded-t-2xl p-4 ">
-          <SentimentChart data={mockEntityData.sentimentData} />
+  // Initialize filtered relationships when relationships change
+  useEffect(() => {
+    setFilteredRelationships(relationships);
+  }, [relationships]);
+
+  // Find shortest path between two entities with sentiment analysis
+  const findConnection = () => {
+    if (!entity1 || !entity2 || entity1 === entity2 || !relationships.length) {
+      setPath(null);
+      setConnectionSentiment('');
+      return;
+    }
+
+    const visited = new Set<string>();
+    const queue: { entity: string; path: Relationship[] }[] = [];
+    const entityMap = new Map<string, Relationship[]>();
+
+    // Build bidirectional relationship map
+    relationships.forEach((rel) => {
+      if (!entityMap.has(rel.from)) entityMap.set(rel.from, []);
+      entityMap.get(rel.from)!.push(rel);
+      if (!entityMap.has(rel.to)) entityMap.set(rel.to, []);
+      entityMap.get(rel.to)!.push({ 
+        ...rel, 
+        from: rel.to, 
+        to: rel.from,
+        sentiment: rel.sentiment // Keep the same sentiment for reverse edge
+      });
+    });
+
+    queue.push({ entity: entity1, path: [] });
+    visited.add(entity1);
+
+    while (queue.length > 0) {
+      const { entity, path: currentPath } = queue.shift()!;
+      const rels = entityMap.get(entity) || [];
+
+      for (const rel of rels) {
+        const nextEntity = rel.to;
+        if (nextEntity === entity2) {
+          const foundPath = [...currentPath, rel];
+          setPath(foundPath);
           
-        
-          <EntityGraph 
-            mainEntity={mockEntityData.name} 
-            relationships={mockEntityData.relationships} 
-          />
-          <LatestArticles articles={cnnArticles} />
-        </div>
-      </div>
-    </TooltipProvider>
+          // Calculate overall sentiment of the connection path
+          const avgSentiment = foundPath.reduce((sum, r) => sum + (r.sentiment || 0), 0) / foundPath.length;
+          let sentimentLabel = 'Neutral';
+          let sentimentColor = 'text-gray-500';
+          
+          if (avgSentiment > 0.1) {
+            sentimentLabel = 'Positive';
+            sentimentColor = 'text-green-500';
+          } else if (avgSentiment < -0.1) {
+            sentimentLabel = 'Negative';
+            sentimentColor = 'text-red-500';
+          }
+          
+          setConnectionSentiment(`Overall Connection Sentiment: ${sentimentLabel} (${avgSentiment.toFixed(2)})`);
+          return;
+        }
+        if (!visited.has(nextEntity)) {
+          visited.add(nextEntity);
+          queue.push({ entity: nextEntity, path: [...currentPath, rel] });
+        }
+      }
+    }
+    setPath(null);
+    setConnectionSentiment('No connection found');
+  };
+
+  // Filter relationships based on search term
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value.toLowerCase();
+    setSearchTerm(term);
+    if (term === '') {
+      setFilteredRelationships(relationships);
+    } else {
+      setFilteredRelationships(
+        relationships.filter(
+          (rel) =>
+            rel.from.toLowerCase().includes(term) ||
+            rel.to.toLowerCase().includes(term) ||
+            rel.type.toLowerCase().includes(term)
+        )
+      );
+    }
+  };
+
+  // Get sentiment color class
+  const getSentimentColorClass = (sentiment: string) => {
+    if (sentiment.includes('Positive')) return 'text-green-500';
+    if (sentiment.includes('Negative')) return 'text-red-500';
+    return 'text-gray-500';
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-2">
+      {/* Connection Finder Section with Graph */}
+      <SiteHeader />
+      <Card className="mb-6 mt-18">
+        <CardHeader>
+          <CardTitle>Find Connections</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex space-x-4 mb-4">
+            <Input
+              type="text"
+              placeholder="Entity 1"
+              value={entity1}
+              onChange={(e) => setEntity1(e.target.value)}
+              className="w-1/2"
+            />
+            <Input
+              type="text"
+              placeholder="Entity 2"
+              value={entity2}
+              onChange={(e) => setEntity2(e.target.value)}
+              className="w-1/2"
+            />
+            <Button onClick={findConnection} className="w-1/4">Find</Button>
+          </div>
+          
+          {connectionSentiment && (
+            <div className={`mb-4 font-medium ${getSentimentColorClass(connectionSentiment)}`}>
+              {connectionSentiment}
+            </div>
+          )}
+          
+          {path && path.length > 0 ? (
+            <div>
+              <div className="text-gray-700 mb-4">
+                <div className="font-semibold mb-2">Connection Path:</div>
+                {path.map((rel, idx) => (
+                  <div key={idx} className="mb-1 flex items-center">
+                    <span className="mr-2">{rel.from}</span>
+                    <div className={`w-4 h-1 mx-2 ${
+                      rel.sentiment && rel.sentiment > 0.1 ? 'bg-green-500' :
+                      rel.sentiment && rel.sentiment < -0.1 ? 'bg-red-500' : 'bg-gray-500'
+                    }`}></div>
+                    <span className="ml-2">{rel.to}</span>
+                    <span className="ml-2 text-sm text-gray-500">
+                      (sentiment: {rel.sentiment?.toFixed(2) || '0.00'})
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <EntityGraph
+                mainEntity={entity1}
+                relationships={path.map(p => ({ 
+                  ...p, 
+                  weight: 1,
+                  sentiment: p.sentiment 
+                }))}
+              />
+            </div>
+          ) : connectionSentiment.includes('No connection') ? (
+            <p className="text-gray-500">No connection found between the entities.</p>
+          ) : null}
+        </CardContent>
+      </Card>
+
+      {/* Search Bar */}
+      <Card className="mb-6 p-4">
+        <Input
+          type="text"
+          placeholder="Search entities or relationship types..."
+          value={searchTerm}
+          onChange={handleSearch}
+          className="w-full"
+        />
+      </Card>
+
+      {/* Top 20 Entities with Sentiment in 2 Columns */}
+      <Card className="p-4">
+        <CardHeader>
+          <CardTitle>Top 20 Entities</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4">
+          {sentimentData.map((item, index) => (
+            <div
+              key={index}
+              className="flex justify-between items-center p-2 bg-gray-800 rounded"
+            >
+              <a
+                href={`/entities/${item.entity.toLowerCase().replace(/\s+/g, '-')}`}
+                className="text-gray-300 hover:text-blue-500"
+              >
+                {item.entity}
+              </a>
+              <span
+                className={`font-medium ${
+                  item.sentiment >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}
+              >
+                {item.sentiment >= 0 ? '+' : ''}{item.displaySentiment}
+              </span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

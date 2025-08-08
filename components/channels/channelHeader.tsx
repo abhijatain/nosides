@@ -75,16 +75,15 @@ export default function ChannelHeader({ channel }: ChannelHeaderProps) {
       </div>
 
       {/* Creative Stats Display */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+      <div className="flex justify-between">
         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
           <div className="flex items-center justify-center space-x-2 mb-2">
             <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
             </svg>
-            <span className="text-xs font-medium text-gray-300 uppercase tracking-wide">Total Views</span>
+            <span className="text-xs font-medium text-gray-300 uppercase tracking-wide">Views</span>
           </div>
           <p className="text-2xl font-bold text-white">{formatNumber(channel.views)}</p>
-          <p className="text-xs text-gray-400 mt-1">Across all platforms</p>
         </div>
 
         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
@@ -99,7 +98,7 @@ export default function ChannelHeader({ channel }: ChannelHeaderProps) {
             <span className="text-xs font-medium text-gray-300 uppercase tracking-wide">Articles</span>
           </div>
           <p className="text-2xl font-bold text-white">{formatNumber(channel.articles)}</p>
-          <p className="text-xs text-gray-400 mt-1">Published stories</p>
+
         </div>
 
         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
@@ -110,7 +109,7 @@ export default function ChannelHeader({ channel }: ChannelHeaderProps) {
             <span className="text-xs font-medium text-gray-300 uppercase tracking-wide">Shares</span>
           </div>
           <p className="text-2xl font-bold text-white">{formatNumber(channel.shares)}</p>
-          <p className="text-xs text-gray-400 mt-1">Social engagement</p>
+
         </div>
       </div>
     </div>
