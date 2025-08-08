@@ -9,8 +9,8 @@ import RotatingText from "./rotatingText";
 export default function NewsFilterBeam() {
 
     return (
-        <div className="p-2 bg-white text-center">
-            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+        <div className="p-2  text-center">
+            <h2 className="text-3xl md:text-2xl font-bold text-slate-900 mb-6 leading-tight">
                 We{' '}
                 <span className="pr-2">
                     <RotatingText
@@ -40,7 +40,7 @@ export default function NewsFilterBeam() {
                 </span>
             </h2>
             <div>
-                <TopojsonMap height={200} width="90vw" initialYear={2020} />
+                <TopojsonMap height={200} width="100%" initialYear={2020} />
             </div>
 
         </div>

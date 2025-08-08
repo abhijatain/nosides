@@ -92,7 +92,7 @@ export default function SentimentBarChart({ sentimentData, timeFilter, setTimeFi
 
   return (
     <Card className="mb-6 text-white bg-black backdrop-blur-sm border-gray-800">
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-4 md:hidden">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <CardTitle className="text-lg sm:text-xl">Top 10 Entities by Sentiment</CardTitle>
@@ -100,7 +100,8 @@ export default function SentimentBarChart({ sentimentData, timeFilter, setTimeFi
               Most supported and criticized entities
             </CardDescription>
           </div>
-          <Select value={timeFilter} onValueChange={setTimeFilter}>
+          <div className="">
+            <Select value={timeFilter} onValueChange={setTimeFilter} >
             <SelectTrigger className="w-full sm:w-[180px] bg-gray-800 border-gray-700 text-white">
               <SelectValue placeholder="Select time period" />
             </SelectTrigger>
@@ -110,9 +111,11 @@ export default function SentimentBarChart({ sentimentData, timeFilter, setTimeFi
               <SelectItem value="year" className="text-white hover:bg-gray-700">Last Year</SelectItem>
             </SelectContent>
           </Select>
+          </div>
+          
         </div>
       </CardHeader>
-      <CardContent className="px-2 sm:px-6">
+      <CardContent className="px-2 sm:px-6 md:p-0">
         {/* Legend */}
         <div className="flex justify-center gap-6 mb-4 text-sm">
           
