@@ -9,7 +9,7 @@ interface WikiInfoProps {
 
 export default function WikiInfo({ info }: WikiInfoProps) {
   return (
-    <div className="mb-6 p-4 text-white">
+    <div className="mb-6 p-4  md:m-0">
       <p className=" mb-4">{info.summary}</p>
       <a
         href={info.url}

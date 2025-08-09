@@ -254,15 +254,16 @@ export default function EntityPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column: Cluster Components (2/3 width) */}
             <div className="lg:col-span-2 space-y-6 border-r-2 pr-4 border-black">
+              <div className='mt-2 rounded border-2 border-black text-black p-4 md:p-0'>
+                <EntityHeader name={mockEntityData.name} type={mockEntityData.type} />
+                <WikiInfo info={mockEntityData.wikiInfo} />
+              </div>
               <ClusterArticleSentiment clusters={clustersData} />
             </div>
             {/* Right Column: NewsFilterBeam (1/3 width) */}
             <div className="lg:col-span-1">
-              <div className='bg-gradient-to-br from-[#27548A] via-[#2d5a94] to-[#1e4170] text-white'>
-<EntityHeader name={mockEntityData.name} type={mockEntityData.type} />
-              <WikiInfo info={mockEntityData.wikiInfo} />
-              </div>
               
+
               <SentimentChart data={mockEntityData.sentimentData} />
 
 

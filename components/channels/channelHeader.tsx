@@ -40,7 +40,7 @@ export default function ChannelHeader({ channel }: ChannelHeaderProps) {
   };
 
   return (
-    <div className="py-6 px-4 text-center">
+    <div className="py-6 px-4 md:p-2 text-center">
       <h1 className="text-4xl font-bold mb-3">{channel.name}</h1>
       
       {/* Channel Description */}
@@ -75,7 +75,7 @@ export default function ChannelHeader({ channel }: ChannelHeaderProps) {
       </div>
 
       {/* Creative Stats Display */}
-      <div className="flex justify-between">
+      <div className="flex justify-between md:hidden">
         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
           <div className="flex items-center justify-center space-x-2 mb-2">
             <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24">

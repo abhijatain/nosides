@@ -6,7 +6,7 @@ interface ClusterTitleProps {
 
 export default function ClusterTitle({ title }: ClusterTitleProps) {
   return (
-    <div className="flex flex-col text-white py-6 px-2 gap-6">
+    <div className="flex flex-col text-white md:text-black py-6 px-2 gap-6">
       <h1 className="text-4xl font-bold text-center">{title}</h1>
       {/* <div className="grid grid-cols-3 gap-4 max-w-4xl mx-auto">
         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">

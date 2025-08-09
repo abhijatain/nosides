@@ -92,10 +92,10 @@ export default function SentimentBarChart({ sentimentData, timeFilter, setTimeFi
 
   return (
     <Card className="mb-6 text-white bg-black backdrop-blur-sm border-gray-800">
-      <CardHeader className="pb-4 md:hidden">
+      <CardHeader className="pb-4 ">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <CardTitle className="text-lg sm:text-xl">Top 10 Entities by Sentiment</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Top 10 Entities</CardTitle>
             <CardDescription className="text-gray-400 text-sm">
               Most supported and criticized entities
             </CardDescription>

@@ -8,6 +8,10 @@ import LatestArticles from '@/components/entity/latestArticles';
 import BottomNav from '@/components/bottomNav';
 import SiteHeader from '@/components/siteHeader';
 import ClusterArticleSentiment from '@/components/clusterLargeScreen';
+import SentimentChart from '@/components/entity/sentimentChart';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 
 // Enhanced mock data for CNN
 const cnnData = {
@@ -59,7 +63,6 @@ const sentimentData = {
   ],
 };
 
-
 // Mock latest articles for CNN aligned with new component structure
 const cnnArticles = [
   {
@@ -100,7 +103,6 @@ const cnnArticles = [
     entities: [
       { entity: "Boeing", sentiment: -0.78, displaySentiment: "78%" },
       { entity: "FAA", sentiment: 0.45, displaySentiment: "45%" },
-
     ]
   },
   {
@@ -123,15 +125,14 @@ const cnnArticles = [
 const channelData = [
   { name: 'CNN', logo: 'https://bcassetcdn.com/public/blog/wp-content/uploads/2021/11/06183243/NBC-1.png' },
   { name: 'BBC', logo: 'https://img.freepik.com/free-vector/gradient-breaking-news-logo-design_23-2151157239.jpg?semt=ais_hybrid&w=740&q=80' },
-  { name: 'Fox News', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcapIMOjqC6gOXg8p4pB36JE1XL4EDuUY1Gg&s' },
+  { name: 'Fox News', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbniq9GcTcapIMOjqC6gOXg8p4pB36JE1XL4EDuUY1Gg&s' },
   { name: 'Al Jazeera', logo: 'https://i.pinimg.com/736x/27/cb/c3/27cbc3bc2388158925c874e012498078.jpg' },
   { name: 'The Sun', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/2/24/BBC_News_HD_Logo.svg/2560px-BBC_News_HD_Logo.svg.png' },
   { name: 'CNN', logo: 'https://bcassetcdn.com/public/blog/wp-content/uploads/2021/11/06183243/NBC-1.png' },
   { name: 'BBC', logo: 'https://img.freepik.com/free-vector/gradient-breaking-news-logo-design_23-2151157239.jpg?semt=ais_hybrid&w=740&q=80' },
-  { name: 'Fox News', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcapIMOjqC6gOXg8p4pB36JE1XL4EDuUY1Gg&s' },
+  { name: 'Fox News', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbniq9GcTcapIMOjqC6gOXg8p4pB36JE1XL4EDuUY1Gg&s' },
   { name: 'Al Jazeera', logo: 'https://i.pinimg.com/736x/27/cb/c3/27cbc3bc2388158925c874e012498078.jpg' },
   { name: 'The Sun', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/2/24/BBC_News_HD_Logo.svg/2560px-BBC_News_HD_Logo.svg.png' },
-
 ];
 
 const clustersData = [
@@ -159,7 +160,7 @@ const clustersData = [
   {
     title: 'Global Tech Regulation Intensifies Worldwide',
     summary: 'Stringent new regulations are significantly reshaping the global technology industry, creating challenges and opportunities for major companies like Apple and others.',
-    channels: [channelData[1], channelData[3], , channelData[2], channelData[6]],
+    channels: [channelData[1], channelData[3], channelData[2], channelData[6]],
     date: '2025-08-03',
     url: 'https://example.com/tech-regulation',
     sentimentData: {
@@ -224,8 +225,78 @@ const clustersData = [
   },
 ];
 
+// Mock entity sentiment data for search
+const entitySentimentData = {
+  Apple: [
+    { date: "2025-01-01", news: 0.3 },
+    { date: "2025-02-01", news: 0.1 },
+    { date: "2025-03-01", news: -0.2 },
+    { date: "2025-04-01", news: 0.4 },
+    { date: "2025-05-01", news: 0.2 },
+    { date: "2025-06-01", news: -0.1 },
+    { date: "2025-07-01", news: -0.3 },
+  ],
+  Tesla: [
+    { date: "2025-01-01", news: 0.2 },
+    { date: "2025-02-01", news: 0.0 },
+    { date: "2025-03-01", news: -0.3 },
+    { date: "2025-04-01", news: 0.3 },
+    { date: "2025-05-01", news: 0.1 },
+    { date: "2025-06-01", news: -0.2 },
+    { date: "2025-07-01", news: -0.4 },
+  ],
+  "Elon Musk": [
+    { date: "2025-01-01", news: 0.1 },
+    { date: "2025-02-01", news: -0.1 },
+    { date: "2025-03-01", news: -0.4 },
+    { date: "2025-04-01", news: 0.2 },
+    { date: "2025-05-01", news: 0.0 },
+    { date: "2025-06-01", news: -0.3 },
+    { date: "2025-07-01", news: -0.5 },
+  ],
+  Google: [
+    { date: "2025-01-01", news: 0.25 },
+    { date: "2025-02-01", news: 0.15 },
+    { date: "2025-03-01", news: -0.1 },
+    { date: "2025-04-01", news: 0.35 },
+    { date: "2025-05-01", news: 0.2 },
+    { date: "2025-06-01", news: -0.05 },
+    { date: "2025-07-01", news: -0.2 },
+  ],
+  "Biden Admin": [
+    { date: "2025-01-01", news: 0.15 },
+    { date: "2025-02-01", news: 0.05 },
+    { date: "2025-03-01", news: -0.25 },
+    { date: "2025-04-01", news: 0.3 },
+    { date: "2025-05-01", news: 0.1 },
+    { date: "2025-06-01", news: -0.15 },
+    { date: "2025-07-01", news: -0.35 },
+  ],
+};
+
 export default function ChannelPageCNN() {
   const [timeFilter, setTimeFilter] = useState<'week' | 'month' | 'year'>('month');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEntity, setSelectedEntity] = useState('Apple'); // Default entity
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    if (term.length > 0) {
+      const filteredSuggestions = Object.keys(entitySentimentData).filter(entity =>
+        entity.toLowerCase().includes(term.toLowerCase())
+      );
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSelectEntity = (entity: string) => {
+    setSelectedEntity(entity);
+    setSearchTerm('');
+    setSuggestions([]);
+  };
 
   return (
     <TooltipProvider>
@@ -241,24 +312,61 @@ export default function ChannelPageCNN() {
           <LatestArticles articles={cnnArticles} />
         </div>
       </div>
-      <div className="hidden md:block p-4 lg:p-6 lg:mt-38">
+      <div className="hidden md:block p-4 lg:p-6 lg:mt-36">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column: Cluster Components (2/3 width) */}
             <div className="lg:col-span-2 space-y-6 border-r-2 pr-4 border-black">
+              <div className='mb-4 rounded bg-gradient-to-br from-[#27548A] via-[#2d5a94] to-[#1e4170] text-white'>
+                <ChannelHeader channel={cnnData} />
+              </div>
               <ClusterArticleSentiment clusters={clustersData} />
             </div>
-            {/* Right Column: NewsFilterBeam (1/3 width) */}
+            {/* Right Column: Sentiment Analysis (1/3 width) */}
             <div className="lg:col-span-1">
-              <div className='mb-4 rounded bg-gradient-to-br from-[#27548A] via-[#2d5a94] to-[#1e4170] text-white'>
-<ChannelHeader channel={cnnData} />
+              <h1 className="text-2xl font-bold mb-4">CNN Sentiment Analysis</h1>
+              <div className="mb-4 text-sm">
+                The chart below illustrates the sentiment expressed by CNN towards various entities, indicating levels of support or criticism over selected time periods.
               </div>
-              
               <SentimentBarChart
-            sentimentData={sentimentData}
-            timeFilter={timeFilter}
-            setTimeFilter={setTimeFilter}
-          />
+                sentimentData={sentimentData}
+                timeFilter={timeFilter}
+                setTimeFilter={setTimeFilter}
+              />
+              <div>
+                <h2 className="text-xl font-semibold mb-2">Entity Sentiment Over Time</h2>
+                <div className="relative mb-4">
+                  <Input
+                    type="text"
+                    placeholder="Search for an entity..."
+                    value={searchTerm}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="pr-10"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full"
+                    onClick={() => handleSearch(searchTerm)}
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
+                  {suggestions.length > 0 && (
+                    <ul className="absolute z-10 bg-white border rounded-md w-full mt-1 max-h-60 overflow-auto">
+                      {suggestions.map((entity, index) => (
+                        <li
+                          key={index}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleSelectEntity(entity)}
+                        >
+                          {entity}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <SentimentChart data={entitySentimentData[selectedEntity] || entitySentimentData['Apple']} />
+              </div>
             </div>
           </div>
         </div>
