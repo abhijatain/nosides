@@ -23,7 +23,7 @@ export default function HomePage() {
       <div className="hidden md:flex flex-col min-h-screen ">
         <SiteHeader />
        
-        <div className="flex-1 p-4 lg:p-6 lg:mt-32">
+        <div className="flex-1 p-4 lg:p-6 lg:mt-34">
           <div className="max-w-7xl mx-auto">
             <div className="flex gap-2 ">
               {/* Left Column: Cluster Components (2/3 width) */}
