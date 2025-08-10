@@ -1,4 +1,4 @@
-import React, { JSX, useCallback, useMemo, useState } from 'react';
+import React, { JSX, useCallback, useMemo, useState, useEffect } from 'react';
 import { ScaleSequential } from 'd3-scale';
 import { Orientation, Scale, TopoJSONMap } from '@unovis/ts';
 import { WorldMapTopoJSON } from '@unovis/ts/maps';
@@ -173,6 +173,19 @@ type TopojsonMapProps = {
 export function TopojsonMap({ height = 550, width = '100vw', initialYear = 2019 }: TopojsonMapProps): JSX.Element {
   const [year, setYear] = useState(initialYear);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [windowHeight, setWindowHeight] = useState(0);
+
+  // Update window height on mount and resize
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const updateHeight = () => {
+        setWindowHeight(window.innerHeight);
+      };
+      updateHeight(); // Set initial height
+      window.addEventListener('resize', updateHeight);
+      return () => window.removeEventListener('resize', updateHeight);
+    }
+  }, []);
 
   return (
     <div className="topojson-map">
@@ -218,7 +231,7 @@ export function TopojsonMap({ height = 550, width = '100vw', initialYear = 2019 
           <div style={{ flex: 1, marginTop: '10px' }}>
             <MapContent 
               year={year} 
-              height={window.innerHeight * 0.8 - 150} // Account for header and padding
+              height={windowHeight * 0.8 - 150} // Use state instead of window.innerHeight
               width="100%" 
               enableZoom={true} 
             />
