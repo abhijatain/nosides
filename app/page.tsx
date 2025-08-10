@@ -31,7 +31,7 @@ export default function HomePage() {
                 <ClusterArticleSentiment clusters={clustersData} />
               </div>
               {/* Right Column: NewsFilterBeam (1/3 width) */}
-              <div className="">
+              <div className="w-[40%] p-2">
                 <NewsFilterBeam />
                 <hr />
                 <FindConnection />

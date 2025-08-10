@@ -48,7 +48,9 @@ export default function SiteHeader() {
   ];
 
   const largeScreenNavItems = [
-    { href: '/entities', label: 'Entities', icon: <Globe className="mr-2 h-6 w-6" /> },
+        { href: '/articles', label: 'Feed', icon: <Newspaper className="mr-2 h-6 w-6" /> },
+   { href: '/channels', label: 'Channels', icon: <Grid className="mr-2 h-6 w-6" />},
+    { href: '/entities/1', label: 'Entities', icon: <Globe className="mr-2 h-6 w-6" /> },
     { href: '/profile', label: 'Profile', icon: <User className="mr-2 h-6 w-6" /> },
   ];
 
@@ -92,7 +94,7 @@ export default function SiteHeader() {
             <h1 className="text-5xl font-bold">NOSIDES</h1>
             <div>
               {largeScreenNavItems.map((item) => (
-                <Button key={item.href} variant="ghost" className=" hover:text-blue-200" asChild>
+                <Button key={item.href} variant="ghost" className=" hover:text-black" asChild>
                   <Link href={item.href} className="flex items-center">
                     {item.icon}
                     {item.label}

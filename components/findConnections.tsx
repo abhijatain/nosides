@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from 'lucide-react';
 import EntityGraph from '@/components/entity/entityGraph2';
 
 // Define the Relationship interface with sentiment
@@ -291,74 +293,121 @@ export default function FindConnection() {
   };
 
   return (
-    <Card className="mb-6 md:mt-2 mt-18 md:border-0 md:shadow-none">
-      <CardHeader>
-        <CardTitle>Find Connections</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-row sm:flex-row sm:space-x-2 mb-4 space-x-2 sm:space-y-0">
-          <AutocompleteInput
-            value={entity1}
-            onChange={setEntity1}
-            placeholder="Entity 1"
-            suggestions={selectedEntities}
-            className="md:w-full sm:w-5/12 text-sm "
-          />
-          <AutocompleteInput
-            value={entity2}
-            onChange={setEntity2}
-            placeholder="Entity 2"
-            suggestions={selectedEntities}
-            className="md:w-full sm:w-5/12 text-sm"
-          />
-          <Button onClick={findConnection} className="sm:w-2/12">Find</Button>
-        </div>
-        
-        {connectionSentiment && (
-          <div className={`mb-4 font-medium ${getSentimentColorClass(connectionSentiment)}`}>
-            {connectionSentiment}
+    <div>
+      {/* Information Alert */}
+      
+
+      <Card className="mb-6 md:mt-2 mt-18 md:border-0 md:shadow-none">
+        <CardHeader>
+          <CardTitle>Find Connections Between Entities</CardTitle>
+          <p className="text-sm text-gray-600">
+            Discover how entities are connected through their appearances in articles and analyze the sentiment of their relationships.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-row sm:flex-row sm:space-x-2 mb-4 space-x-2 sm:space-y-0">
+            <AutocompleteInput
+              value={entity1}
+              onChange={setEntity1}
+              placeholder="First Entity (e.g., Elon Musk)"
+              suggestions={selectedEntities}
+              className="md:w-full sm:w-5/12 text-sm "
+            />
+            <AutocompleteInput
+              value={entity2}
+              onChange={setEntity2}
+              placeholder="Second Entity (e.g., Tesla)"
+              suggestions={selectedEntities}
+              className="md:w-full sm:w-5/12 text-sm"
+            />
+            <Button onClick={findConnection} className="sm:w-2/12">Find</Button>
           </div>
-        )}
-        
-        {path && path.length > 0 ? (
-          <div>
-            <div className="text-gray-700 mb-4">
-              <div className="font-semibold mb-2">Connection Path:</div>
-              {path.map((rel, idx) => (
-                <div key={idx} className="mb-1 flex items-center">
-                  <span className="mr-2">{rel.from}</span>
-                  <div className={`w-4 h-1 mx-2 ${
-                    rel.sentiment && rel.sentiment > 0.1 ? 'bg-green-500' :
-                    rel.sentiment && rel.sentiment < -0.1 ? 'bg-red-500' : 'bg-gray-500'
-                  }`}></div>
-                  <span className="ml-2">{rel.to}</span>
-                  <span className="ml-2 text-sm text-gray-500">
-                    (sentiment: {rel.sentiment?.toFixed(2) || '0.00'})
-                  </span>
-                </div>
-              ))}
+          
+          {/* Sentiment Legend */}
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm font-medium mb-2">Connection Sentiment Legend:</p>
+            <div className="flex flex-wrap gap-4 text-sm">
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-2 bg-green-500 rounded"></div>
+                <span>Positive (0.1 to 1.0)</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-2 bg-gray-500 rounded"></div>
+                <span>Neutral (-0.1 to 0.1)</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-2 bg-red-500 rounded"></div>
+                <span>Negative (-1.0 to -0.1)</span>
+              </div>
             </div>
-            <EntityGraph
-              mainEntity={entity1}
-              relationships={path.map(p => ({ 
-                ...p, 
-                weight: 1,
-                sentiment: p.sentiment 
-              }))}
-            />
           </div>
-        ) : (
-          <div>
-            {connectionSentiment.includes('No connection') && (
-              <p className="text-gray-500 mb-4">No connection found between the entities.</p>
-            )}
-            <EntityGraph
-              mainEntity=""
-              relationships={[]}
-            />
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          
+          {connectionSentiment && (
+            <div className={`mb-4 font-medium ${getSentimentColorClass(connectionSentiment)}`}>
+              {connectionSentiment}
+            </div>
+          )}
+          
+          {path && path.length > 0 ? (
+            <div>
+              <div className="text-gray-700 mb-4">
+                <div className="font-semibold mb-2">Connection Path Found:</div>
+                <div className="text-sm text-gray-600 mb-3">
+                  This shows how the entities are connected through their co-appearances in articles:
+                </div>
+                {path.map((rel, idx) => (
+                  <div key={idx} className="mb-2 p-2 bg-gray-50 rounded flex items-center">
+                    <span className="mr-2 font-medium">{rel.from}</span>
+                    <div className="flex items-center">
+                      <div className={`w-8 h-1 mx-2 ${
+                        rel.sentiment && rel.sentiment > 0.1 ? 'bg-green-500' :
+                        rel.sentiment && rel.sentiment < -0.1 ? 'bg-red-500' : 'bg-gray-500'
+                      }`}></div>
+                      <span className="text-xs text-gray-500 mx-1">
+                        {rel.sentiment && rel.sentiment > 0.1 ? 'positive' :
+                         rel.sentiment && rel.sentiment < -0.1 ? 'negative' : 'neutral'}
+                      </span>
+                    </div>
+                    <span className="ml-2 font-medium">{rel.to}</span>
+                    <span className="ml-3 text-sm text-gray-500 bg-white px-2 py-1 rounded">
+                      sentiment: {rel.sentiment?.toFixed(2) || '0.00'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-4">
+                <p className="text-sm text-gray-600 mb-2">Visual representation of the connection path:</p>
+                <EntityGraph
+                  mainEntity={entity1}
+                  relationships={path.map(p => ({ 
+                    ...p, 
+                    weight: 1,
+                    sentiment: p.sentiment 
+                  }))}
+                />
+              </div>
+            </div>
+          ) : (
+            <div>
+              {connectionSentiment.includes('No connection') && (
+                <div className="text-gray-500 mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                  <p className="font-medium text-yellow-800">No connection found between the entities.</p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    This means these entities haven't appeared together in the same articles or content in our database.
+                  </p>
+                </div>
+              )}
+              <div className="border-t pt-4">
+                <p className="text-sm text-gray-600 mb-2">Entity relationship graph:</p>
+                <EntityGraph
+                  mainEntity=""
+                  relationships={[]}
+                />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
