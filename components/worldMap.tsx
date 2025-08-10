@@ -85,7 +85,7 @@ export function TopojsonMap({ height = 550, width = '100vw', initialYear = 2019 
         <VisTopoJSONMap topojson={WorldMapTopoJSON} areaColor={getAreaColor} disableZoom />
         <VisTooltip triggers={tooltipTriggers} />
       </VisSingleContainer>
-      <GradientLegend title="Press Freedom Index (years)" colors={colorScale} range={ageRange} width={legendWidth} />
+      <GradientLegend title="Press Freedom Index (higher the better)" colors={colorScale} range={ageRange} width={legendWidth} />
     </div>
   );
 }

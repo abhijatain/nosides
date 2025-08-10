@@ -312,18 +312,18 @@ export default function ChannelPageCNN() {
           <LatestArticles articles={cnnArticles} />
         </div>
       </div>
-      <div className="hidden md:block p-4 lg:p-6 lg:mt-36">
+      <div className="hidden md:block p-6 lg:mt-36">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="flex gap-2">
             {/* Left Column: Cluster Components (2/3 width) */}
-            <div className="lg:col-span-2 space-y-6 border-r-2 pr-4 border-black">
+            <div className="w-[60%] border-r-2 pr-4 border-black">
               <div className='mb-4 rounded bg-gradient-to-br from-[#27548A] via-[#2d5a94] to-[#1e4170] text-white'>
                 <ChannelHeader channel={cnnData} />
               </div>
               <ClusterArticleSentiment clusters={clustersData} />
             </div>
             {/* Right Column: Sentiment Analysis (1/3 width) */}
-            <div className="lg:col-span-1">
+            <div className="w-[40%] p-2">
               <h1 className="text-2xl font-bold mb-4">CNN Sentiment Analysis</h1>
               <div className="mb-4 text-sm">
                 The chart below illustrates the sentiment expressed by CNN towards various entities, indicating levels of support or criticism over selected time periods.
@@ -333,9 +333,9 @@ export default function ChannelPageCNN() {
                 timeFilter={timeFilter}
                 setTimeFilter={setTimeFilter}
               />
-              <div>
+              <div >
                 <h2 className="text-xl font-semibold mb-2">Entity Sentiment Over Time</h2>
-                <div className="relative mb-4">
+                <div className="relative mb-4 ">
                   <Input
                     type="text"
                     placeholder="Search for an entity..."

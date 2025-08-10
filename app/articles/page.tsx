@@ -11,6 +11,7 @@ import BottomNav from '@/components/bottomNav';
 import SiteHeader from '@/components/siteHeader';
 
 import LatestArticles from '@/components/entity/latestArticles';
+import { Info } from 'lucide-react';
 
 // Mock latest articles for CNN
 const cnnArticles = [
@@ -318,6 +319,7 @@ export default function ClustersPage() {
   const [isGraphExplanationOpen, setIsGraphExplanationOpen] = useState(false);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+    const [showExplanation, setShowExplanation] = useState(true);
 
   const currentCluster = mockClusters[currentClusterIndex];
   const currentSource = currentCluster.sources[selectedChannel];
@@ -438,9 +440,40 @@ export default function ClustersPage() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="max-w-7xl mx-auto grid grid-cols-3 gap-6 p-4 lg:p-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-3 gap-6 p-4">
           {/* Left Column: Existing Content (2/3 width) */}
           <div className="col-span-2 bg-white text-black rounded-t-2xl">
+            <div className="bg-[#E2DDB4] rounded-lg p-4 mb-6 text-black">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5  mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold  mb-2">
+              News Sentiment Analysis
+            </h2>
+            {showExplanation && (
+              <div className="text-sm  space-y-2">
+                <p>
+                  Each news story below is analyzed to show how different entities (people, organizations, topics) 
+                  are portrayed across news channels. The sentiment chart shows whether coverage is generally 
+                  <span className="inline-flex items-bottom mx-1 ">
+                    <span className="font-medium text-green-700">supportive</span>
+                  </span>
+                  or
+                  <span className="inline-flex items-bottom mx-1">
+                    <span className="font-medium text-red-700">critical</span>
+                  </span>
+                  of each entity.
+                </p>
+                <p className="text-xs text-gray-600">
+                  Values represent the average sentiment across all news channels covering this story.
+                </p>
+              </div>
+            )}
+            
+          </div>
+        </div>
+      </div>
+
             <ClusterTitle title={currentCluster.title} />
             <TopBar
               publishedAt={currentCluster.publishedAt}
@@ -522,8 +555,7 @@ export default function ClustersPage() {
 
           {/* Right Column: Latest Articles (1/3 width) */}
           <div className="col-span-1">
-            <h2 className="text-xl font-semibold mb-4 text-white">Latest Articles</h2>
-            <LatestArticles articles={cnnArticles} />
+           <LatestArticles articles={cnnArticles} />
           </div>
         </div>
       </div>

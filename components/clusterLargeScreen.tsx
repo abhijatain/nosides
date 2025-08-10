@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
-import { Clock } from 'lucide-react';
+import { Clock, Info, TrendingUp, TrendingDown } from 'lucide-react';
 import { ChartConfig, ChartContainer } from '@/components/ui/chart';
-
 
 const chartConfig = {
   sentiment: {
@@ -67,6 +66,7 @@ const CustomLabel = (props: any) => {
 export default function ClusterArticleSentiment({ clusters }: ClusterArticleSentimentProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [timeFilter] = useState<'week' | 'month' | 'year'>('week');
+  const [showExplanation, setShowExplanation] = useState(true);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -128,7 +128,39 @@ export default function ClusterArticleSentiment({ clusters }: ClusterArticleSent
   };
 
   return (
-    <div className="space-y-4 p-4 lg:p-6">
+    <div className="p-2">
+      {/* Header with explanation */}
+      <div className="bg-[#E2DDB4] rounded-lg p-4 mb-6 text-black">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5  mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold  mb-2">
+              News Sentiment Analysis
+            </h2>
+            {showExplanation && (
+              <div className="text-sm  space-y-2">
+                <p>
+                  Each news story below is analyzed to show how different entities (people, organizations, topics) 
+                  are portrayed across news channels. The sentiment chart shows whether coverage is generally 
+                  <span className="inline-flex items-bottom mx-1 ">
+                    <span className="font-medium text-green-700">supportive</span>
+                  </span>
+                  or
+                  <span className="inline-flex items-bottom mx-1">
+                    <span className="font-medium text-red-700">critical</span>
+                  </span>
+                  of each entity.
+                </p>
+                <p className="text-xs text-gray-600">
+                  Values represent the average sentiment across all news channels covering this story.
+                </p>
+              </div>
+            )}
+            
+          </div>
+        </div>
+      </div>
+
       {clusters.map((cluster, index) => {
         const data = cluster.sentimentData[timeFilter].map((item) => ({
           entity: item.entity || 'Unknown',
@@ -140,12 +172,11 @@ export default function ClusterArticleSentiment({ clusters }: ClusterArticleSent
         return (
           <div
             key={index}
-            className="font-inter  grid grid-cols-1 lg:grid-cols-3 gap-6 border-b-2 pb-2 border-black"
+            className="font-inter flex border-b-2 border-black mb-2"
           >
             {/* Left: Article Content */}
-            <div className="lg:col-span-2">
+            <div className="w-[70%]">
               <article className="group relative">
-               
                 <div className="flex justify-between">
                   {renderChannels(cluster.channels)}
                   <div className="flex items-center gap-1 text-gray-500 mb-3">
@@ -166,33 +197,41 @@ export default function ClusterArticleSentiment({ clusters }: ClusterArticleSent
                 <p className="text-gray-600 text-sm leading-relaxed mb-4">{cluster.summary}</p>
               </article>
             </div>
+            
             {/* Right: Sentiment Chart */}
-            <div className="lg:col-span-1 rounded-lg p-2">
-              <div className=" sm:px-6 md:p-0">
-                <div className="flex justify-center gap-6 mb-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-red-600 rounded"></div>
-                    <span>Negative</span>
+            <div className="w-[30%] p-2 ml-2">
+              <div className="mb-4">
+             
+                <p className="text-xs text-gray-600 mb-3">
+                  How news channels portray key entities in this story:
+                </p>
+              </div>
+              
+              <div className="sm:px-6 md:p-0">
+                <div className="flex justify-center gap-4 mb-4 text-xs">
+                  <div className="flex items-center gap-2 bg-white px-3 py-1">
+                    <TrendingDown className="w-3 h-3 text-red-600" />
+                    <span className="font-medium">Critical</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-600 rounded"></div>
-                    <span>Positive</span>
+                  <div className="flex items-center gap-2 bg-white px-3 py-1">
+                    <TrendingUp className="w-3 h-3 text-green-600" />
+                    <span className="font-medium">Supportive</span>
                   </div>
                 </div>
+                
                 <ChartContainer config={chartConfig}>
-                  <ResponsiveContainer width="90%" height={100}>
+                  <ResponsiveContainer width="90%" height={120}>
                     <BarChart
                       data={data}
                       layout="vertical"
-                      
                     >
-                      <CartesianGrid horizontal={false} stroke="#000000ff" strokeDasharray="3 3" />
+                      <CartesianGrid horizontal={false} stroke="#e5e7eb" strokeDasharray="2 2" />
                       <XAxis
                         type="number"
                         domain={[-0.5, 0.5]}
                         hide={isMobile}
-                        stroke="#070707ff"
-                        fontSize={12}
+                        stroke="#6b7280"
+                        fontSize={10}
                       />
                       <YAxis 
                         dataKey="entity"
@@ -206,20 +245,22 @@ export default function ClusterArticleSentiment({ clusters }: ClusterArticleSent
                         content={({ payload }) => {
                           if (payload && payload.length && payload[0].payload) {
                             const data = payload[0].payload;
-                            const sentimentText = (data.sentiment || 0) > 0 ? 'Positive' : 'Negative';
+                            const sentimentText = (data.sentiment || 0) > 0 ? 'Supportive' : 'Critical';
                             const sentimentColor = (data.sentiment || 0) > 0 ? '#059669' : '#dc2626';
+                            const icon = (data.sentiment || 0) > 0 ? '↗' : '↘';
                             return (
-                              <div className="bg-black p-3 rounded-lg border border-gray-700 shadow-lg">
-                                <p className="font-semibold text-white text-base mb-1">{data.entity || 'Unknown'}</p>
+                              <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-lg">
+                                <p className="font-semibold text-gray-800 text-sm mb-1">{data.entity || 'Unknown'}</p>
                                 <div className="flex items-center gap-2">
-                                  <div
-                                    className="w-3 h-3 rounded-full"
-                                    style={{ backgroundColor: sentimentColor }}
-                                  ></div>
-                                  <span className="text-gray-300 text-sm">
-                                    {sentimentText}: {Math.abs(data.sentiment || 0).toFixed(2)}
+                                  <span className="text-lg">{icon}</span>
+                                  <span className="text-gray-600 text-sm">
+                                    <span className="font-medium" style={{ color: sentimentColor }}>
+                                      {sentimentText}
+                                    </span>
+                                    {' '}coverage ({Math.abs(data.sentiment || 0).toFixed(2)})
                                   </span>
                                 </div>
+                                <p className="text-xs text-gray-500 mt-1">Average across all news sources</p>
                               </div>
                             );
                           }
@@ -228,10 +269,10 @@ export default function ClusterArticleSentiment({ clusters }: ClusterArticleSent
                       />
                       <Bar
                         dataKey="sentiment"
-                        radius={6}
-                        stroke="rgba(0, 0, 0, 1)"
+                        radius={4}
+                        stroke="rgba(0, 0, 0, 0.1)"
                         strokeWidth={1}
-                        barSize={20}
+                        barSize={18}
                       >
                         <LabelList content={<CustomLabel />} />
                         {data.map((entry, idx) => (
@@ -241,23 +282,8 @@ export default function ClusterArticleSentiment({ clusters }: ClusterArticleSent
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartContainer>
-                {isMobile && (
-                  <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                    {data.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex justify-between items-center p-2 bg-gray-800 rounded"
-                      >
-                        <span className="text-gray-300">{item.entity}</span>
-                        <span
-                          className={`font-medium ${item.sentiment >= 0 ? 'text-green-400' : 'text-red-400'}`}
-                        >
-                          {item.sentiment >= 0 ? '+' : ''}{item.displaySentiment}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                
+                
               </div>
             </div>
           </div>

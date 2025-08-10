@@ -9,7 +9,7 @@ interface TopBarProps {
 
 export default function TopBar({ publishedAt, onLike, onSave }: TopBarProps) {
   return (
-    <div className="flex items-center justify-between px-4 py-2 text-white">
+    <div className="flex items-center justify-between px-4 py-2 text-white md:text-black">
       <span className="text-sm">Published at: {publishedAt}</span>
       <div className="flex space-x-4">
         <button onClick={onLike}>

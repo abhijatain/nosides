@@ -20,7 +20,7 @@ import {
 const chartConfig = {
   youtube: {
     label: "YouTube Sentiment",
-    color: "#fbff00ff",
+    color: "#ff9100ff",
   },
   news: {
     label: "News Sentiment",
@@ -40,7 +40,7 @@ interface SentimentChartProps {
 
 export default function SentimentChart({ data }: SentimentChartProps) {
   return (
-    <Card className="mb-6 bg-black text-white">
+    <Card className="mb-6 bg-black text-white  md:shadow-none md:border-0">
       <CardHeader>
         <CardTitle>Sentiment Over Time</CardTitle>
         <CardDescription  className="">Average sentiment scores from YouTube and News sources</CardDescription>

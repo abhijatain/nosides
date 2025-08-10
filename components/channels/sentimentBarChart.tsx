@@ -91,8 +91,8 @@ export default function SentimentBarChart({ sentimentData, timeFilter, setTimeFi
   }));
 
   return (
-    <Card className="mb-6 text-white bg-black backdrop-blur-sm border-gray-800">
-      <CardHeader className="pb-4 ">
+    <Card className="mb-6 text-white bg-black md:bg-white md:text-black backdrop-blur-sm border-gray-800 md:border-0 md:shadow-none">
+      <CardHeader className="pb-4 md:pb-0 md:m-0">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <CardTitle className="text-lg sm:text-xl">Top 10 Entities</CardTitle>
@@ -117,7 +117,7 @@ export default function SentimentBarChart({ sentimentData, timeFilter, setTimeFi
       </CardHeader>
       <CardContent className="px-2 sm:px-6 md:p-0">
         {/* Legend */}
-        <div className="flex justify-center gap-6 mb-4 text-sm">
+        <div className="flex justify-center gap-6 mb-4 text-sm md:hidden">
           
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-red-600 rounded"></div>
@@ -129,7 +129,7 @@ export default function SentimentBarChart({ sentimentData, timeFilter, setTimeFi
           </div>
         </div>
 
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className='md:hidden'>
           <ResponsiveContainer width="100%" height={isMobile ? 600 : 450}>
             <BarChart 
               data={data} 
@@ -143,7 +143,7 @@ export default function SentimentBarChart({ sentimentData, timeFilter, setTimeFi
             >
               <CartesianGrid 
                 horizontal={false} 
-                stroke="#ffffffff" 
+                stroke={isMobile ? "#ffffff" : "#000000ff"} 
                 strokeDasharray="3 3"
               />
               <XAxis 
@@ -201,8 +201,8 @@ export default function SentimentBarChart({ sentimentData, timeFilter, setTimeFi
         </ChartContainer>
 
         {/* Mobile-friendly sentiment values */}
-        {isMobile && (
-          <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+        {true && (
+          <div className="mt-4 md:mt-0 md:px-4 grid grid-cols-2 gap-2 text-xs">
             {data.map((item, index) => (
               <div 
                 key={index}

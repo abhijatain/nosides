@@ -55,7 +55,7 @@ export default function SiteHeader() {
   return (
     <header
       className={cn(
-        'fixed left-0 right-0 top-0 z-50 bg-[#27548A] text-white md:bg-black md:text-white transition-transform duration-300 ',
+        'fixed left-0 right-0 top-0 z-50 bg-[#27548A] text-white md:bg-[#B9375D] md:text-white transition-transform duration-300 ',
         isVisible ? 'translate-y-0' : '-translate-y-full'
       )}
     >
